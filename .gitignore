@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+.idea/
+ufile/ufile-test.txt
+gotool.iml
