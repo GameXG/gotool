@@ -1,0 +1,2 @@
+# gotool
+golang tool
