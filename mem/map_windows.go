@@ -8,12 +8,21 @@ import (
 	"unsafe"
 )
 
-const NAME = "CAC5ADA322594E84B6C1120F0B52FD7C"
+const NAME = "CAC5ADA322594E84B6C1120F0B52FD7B"
 
 func ReadMem() ([]byte, error) {
-	fh := int(-1)
+	return ReadNameMem("")
+}
+func ReadNameMem(name string) ([]byte, error) {
+	fh := int32(-1)
+
+	nname := NAME
+	if name != "" {
+		nname = NAME + "_" + name
+	}
+
 	h, err := syscall.CreateFileMapping(syscall.Handle(fh),
-		nil, uint32(syscall.PAGE_READONLY), 0, uint32(1024), syscall.StringToUTF16Ptr(NAME))
+		nil, uint32(syscall.PAGE_READONLY), 0, uint32(1024), syscall.StringToUTF16Ptr(nname))
 	if h == 0 {
 		return nil, err
 	}
@@ -33,9 +42,10 @@ func ReadMem() ([]byte, error) {
 	b := *((*[1024]byte)(unsafe.Pointer(addr)))
 
 	res := make([]byte, uint8(l))
-	copy(res, b[1:l + 1])
+	copy(res, b[1:l+1])
 
 	return res, nil
+
 }
 
 func EncipherMem(b []byte) {

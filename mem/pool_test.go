@@ -71,54 +71,99 @@ func TestPool2(t *testing.T) {
 }
 
 func TestPool3(t *testing.T) {
-	sTime := time.Now()
-	for i := 0; i < 1000000; i++ {
-		_ = Get(2048)
-	}
-	// 只 Get 耗时： 2.1222792s
-	eTime := time.Now()
-	fmt.Println("只 Get 耗时：", eTime.Sub(sTime))
-	fmt.Println("平均:", eTime.Sub(sTime) / 1000000)
-
-	sTime = time.Now()
-	for i := 0; i < 1000000; i++ {
-		_ = make([]byte, 2048)
-	}
-	// make 耗时： 63.0036ms
-	eTime = time.Now()
-	fmt.Println("make 耗时：", eTime.Sub(sTime))
-	fmt.Println("平均:", eTime.Sub(sTime) / 1000000)
-
-	c := make(chan []byte, 10)
-	go func() {
-		for buf := range c {
-			Put(buf)
+	func() {
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() {
+				_ = Get(2048)
+			}()
 		}
+		// 只 Get 耗时： 2.1222792s
+		eTime := time.Now()
+		fmt.Println("只 Get 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
 	}()
 
-	sTime = time.Now()
-	for i := 0; i < 1000000; i++ {
-		c <- Get(2048)
-	}
-	// Get 另一线程 Put 耗时： 533.5768ms
-	eTime = time.Now()
-	fmt.Println("Get 另一线程 Put 耗时：", eTime.Sub(sTime))
-	fmt.Println("平均:", eTime.Sub(sTime) / 1000000)
+	func() {
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() {
+				_ = make([]byte, 2048)
+			}()
+		}
+		// make 耗时： 63.0036ms
+		eTime := time.Now()
+		fmt.Println("make 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
+	}()
 
-	close(c)
+	func() {
+		c := make(chan []byte, 10)
+		go func() {
+			for buf := range c {
+				Put(buf)
+			}
+		}()
 
-	c = make(chan []byte)
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() {
+				c <- Get(2048)
+			}()
+		}
+		// Get 另一线程 Put 耗时： 533.5768ms
+		eTime := time.Now()
+		fmt.Println("Get 另一线程 Put 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
 
-	sTime = time.Now()
-	for i := 0; i < 1000000; i++ {
-		Put(Get(2048))
-	}
-	// Get Put 耗时： 167.5262ms
-	eTime = time.Now()
-	fmt.Println("Get Put 耗时：", eTime.Sub(sTime))
-	fmt.Println("平均:", eTime.Sub(sTime) / 1000000)
+		close(c)
+	}()
 
-	close(c)
+	func() {
+		c := make(chan []byte)
+
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() {
+				Put(Get(2048))
+			}()
+		}
+
+		// Get Put 耗时： 167.5262ms
+		eTime := time.Now()
+		fmt.Println("Get Put 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
+
+		close(c)
+	}()
+
+	func() {
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() []byte {
+				var b [10]byte
+				return b[:]
+			}()
+		}
+		// 只 Get 耗时： 2.1222792s
+		eTime := time.Now()
+		fmt.Println("堆10 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
+	}()
+
+	func() {
+		sTime := time.Now()
+		for i := 0; i < 1000000; i++ {
+			func() []byte {
+				var b [1024]byte
+				return b[:]
+			}()
+		}
+		// 只 Get 耗时： 2.1222792s
+		eTime := time.Now()
+		fmt.Println("堆1024 耗时：", eTime.Sub(sTime))
+		fmt.Println("平均:", eTime.Sub(sTime)/1000000)
+	}()
 }
 
 func TestPool4(t *testing.T) {
@@ -140,11 +185,16 @@ func TestPool4(t *testing.T) {
 
 	sTime := time.Now()
 	for i := 0; i < 1000000; i++ {
-		put(get())
+		func() {
+			put(get())
+		}()
 	}
 	// chan 耗时： 142.095ms
 	eTime := time.Now()
 	fmt.Println("chan 耗时：", eTime.Sub(sTime))
-	fmt.Println("平均:", eTime.Sub(sTime) / 1000000)
+	fmt.Println("平均:", eTime.Sub(sTime)/1000000)
 
+}
+func TestPut(t *testing.T) {
+	Put(nil)
 }

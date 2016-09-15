@@ -18,9 +18,11 @@ func init() {
 	PoolByte4096 = NewPool(4096)
 	PoolByte2048 = NewPool(2048)
 	PoolByte1024 = NewPool(1024)
+	PoolByteforward = PoolByte4096
 }
 
 // 全局内存池
+var PoolByteforward *Pool
 var PoolByte4096 *Pool
 var PoolByte2048 *Pool
 var PoolByte1024 *Pool
@@ -72,13 +74,14 @@ func Get(l int) []byte {
 //可以放心尺寸的问题，切片尺寸有问题会被放弃
 func Put(buf []byte) error {
 	l := cap(buf)
-	if l == 4096 {
+	switch l {
+	case 4096:
 		PoolByte4096.Put(buf)
-	} else if l == 2048 {
+	case 2048:
 		PoolByte2048.Put(buf)
-	} else if l == 1024 {
+	case 1024:
 		PoolByte1024.Put(buf)
-	} else {
+	default:
 		return fmt.Errorf("内存池释放错误，尺寸 %v 不匹配。调用上下文： %v \r\n", l, string(debug.Stack()))
 	}
 	return nil

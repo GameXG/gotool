@@ -19,7 +19,7 @@ func TestMap(t *testing.T) {
 	}
 	defer syscall.CloseHandle(h)
 
-	addr, err := syscall.MapViewOfFile(h, uint32(syscall.FILE_MAP_WRITE | syscall.FILE_MAP_READ), 0,
+	addr, err := syscall.MapViewOfFile(h, uint32(syscall.FILE_MAP_WRITE|syscall.FILE_MAP_READ), 0,
 		0, uintptr(1024))
 	if addr == 0 {
 		t.Fatal(err)
@@ -32,7 +32,7 @@ func TestMap(t *testing.T) {
 	b2 := []byte(s)
 
 	for i := 1; i <= len(b2); i++ {
-		(*b1)[i] = b2[i - 1]
+		(*b1)[i] = b2[i-1]
 	}
 
 	(*b1)[0] = uint8(len(b2))
