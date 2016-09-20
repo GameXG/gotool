@@ -1,0 +1,26 @@
+
+# 配置文件
+
+#LAddr=":6789"
+# 本地 socks5 监听地址 废弃
+
+#RAddr="127.0.0.1:2001"
+# 中转服务器地址 废弃
+
+Socks5Timeout=123
+# socks5 命令超时时间，单位秒
+# 注意，目前还包括连接目标网站的时间，需要注意不能太小。
+
+ForwardTimeout=456
+# socks5 转发超时，单位秒
+
+ForwardDelay=true
+#socks5协议协商完成后，纯转发请求时是否开启 Delay ，true 开启，增加吞吐量，增加响应延迟。
+
+HardMaxConnMessage = "159357"
+# 硬性连接数限制消息框内容。
+
+SoftMaxConnCount = 789
+HardMaxConnCount = 147
+
+UpConnCountUrl = "http://1111111"
